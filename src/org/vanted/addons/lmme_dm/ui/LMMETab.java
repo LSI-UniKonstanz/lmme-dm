@@ -954,7 +954,7 @@ public class LMMETab extends InspectorTab {
 		JPanel subsystemLayoutSelect = combine(labelSubsystemLayoutAlgo, this.cbSubsystemLayout, Color.WHITE, false,
 				true);
 		fp.addGuiComponentRow(FolderPanel.getBorderedComponent(subsystemLayoutSelect, 5, 0, 5, 0), null, true);
-		this.cbSubsystemLayout.setSelectedItem(MinervaDMLayout.name());
+		this.cbSubsystemLayout.setSelectedItem(StressMinMMLayout.name());
 		
 		this.ckbClearSubsView = new JCheckBox("Clear subsystem view before");
 		ckbClearSubsView.setSelected(true);

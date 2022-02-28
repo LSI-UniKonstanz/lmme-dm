@@ -121,7 +121,7 @@ public class LMMEController {
 //		decompositionAlgorithmsMap.put(predefDecomp.getName(), predefDecomp);
 //		decompositionAlgorithmsMap.put(keggDecomp.getName(), keggDecomp);
 		decompositionAlgorithmsMap.put(schusterDecomp.getName(), schusterDecomp);
-		decompositionAlgorithmsMap.put(compartmentDecomp.getName(), compartmentDecomp);
+//		decompositionAlgorithmsMap.put(compartmentDecomp.getName(), compartmentDecomp);
 		decompositionAlgorithmsMap.put(diseaseMapPathwayDecomp.getName(), diseaseMapPathwayDecomp);
 //		decompositionAlgorithmsMap.put(girvanDecomp.getName(), girvanDecomp);
 		
@@ -142,7 +142,7 @@ public class LMMEController {
 		subsystemLayoutsMap.put(forceLayout.getName(), forceLayout);
 		subsystemLayoutsMap.put(concentricCircLayout.getName(), concentricCircLayout);
 		subsystemLayoutsMap.put(parallelLinesLayout.getName(), parallelLinesLayout);
-		subsystemLayoutsMap.put(minervaLayout.getName(), minervaLayout);
+//		subsystemLayoutsMap.put(minervaLayout.getName(), minervaLayout);
 		
 	}
 	
@@ -212,6 +212,26 @@ public class LMMEController {
 				if (AttributeHelper.hasAttribute(node, "cd19dm", "node_type")) {
 					String nodeType = (String) AttributeHelper.getAttributeValue(node, "cd19dm", "node_type", "", "");
 					AttributeHelper.setAttribute(node, SBML_Constants.SBML, SBML_Constants.SBML_ROLE, nodeType);
+				}
+			}
+			// restore origin diagram annotation
+			for (Node reactionNode : graph.getNodes()) {
+				if (LMMETools.getInstance().isReaction(reactionNode)) {
+					if (AttributeHelper.hasAttribute(reactionNode, "cd19dm", "diagram")) {
+						String diagramAnnotation = (String) AttributeHelper.getAttributeValue(reactionNode, "cd19dm", "diagram", "", "");
+						if (diagramAnnotation.indexOf(";") != -1) {
+							System.out.println("Check diagram annotation: " + diagramAnnotation);
+						}
+						AttributeHelper.setAttribute(reactionNode, LMMEConstants.ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_PATHWAY_ATTRIBUTE,
+								diagramAnnotation.split(Pattern.quote(";"))[0]);
+					}
+				}
+				System.out.println("shape: " + AttributeHelper.getAttributeValue(reactionNode, "graphics", "shape", "", ""));
+			}
+			// assign species circular shape
+			for (Node speciesNode : graph.getNodes()) {
+				if (LMMETools.getInstance().isSpecies(speciesNode)) {
+					AttributeHelper.setShape(speciesNode, "org.graffiti.plugins.views.defaults.CircleNodeShape");
 				}
 			}
 			SBMLSpeciesHelper helper = new SBMLSpeciesHelper(graph);
