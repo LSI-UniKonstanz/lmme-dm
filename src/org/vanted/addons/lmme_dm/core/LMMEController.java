@@ -15,6 +15,8 @@
 package org.vanted.addons.lmme_dm.core;
 
 import java.awt.Color;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -230,44 +232,14 @@ public class LMMEController {
 			String tempName = s.getGraph().getName().substring(0, s.getGraph().getName().length() - 4);
 			for (Node reactionNode : tempGraph.getNodes()) {
 				if (LMMETools.getInstance().isReaction(reactionNode)) {
-					AttributeHelper.setAttribute(reactionNode, LMMEConstants.ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_PATHWAY_ATRIBUTE, tempName);
+					AttributeHelper.setAttribute(reactionNode, LMMEConstants.ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_PATHWAY_ATTRIBUTE, tempName);
 				}
 			}
-			
-//			ArrayList<String> allNames = new ArrayList<String>();
-//			HashSet<String> uniqueNames = new HashSet<String>();
-//			
-//			for (Node speciesNode : tempGraph.getNodes()) {
-//				if (LMMETools.getInstance().isSpecies(speciesNode)) {
-//					if (AttributeHelper.hasAttribute(speciesNode, SBML_Constants.SBML, SBML_Constants.SPECIES_COMPARTMENT_NAME)) {
-//						String compName = (String) AttributeHelper.getAttributeValue(speciesNode, SBML_Constants.SBML,
-//								SBML_Constants.SPECIES_COMPARTMENT_NAME, "", "");
-//						allNames.add(compName);
-//						uniqueNames.add(compName);
-//						allUniqueNames.add(compName);
-//					}
-//				}
-//			}
-			
-//			System.out.println(tempName + ":");
-//			for (String compName : uniqueNames) {
-//				int occurences = 0;
-//				for (int i = 0; i < allNames.size(); i++) {
-//					if (allNames.get(i).equals(compName)) {
-//						occurences += 1;
-//					}
-//				}
-//				System.out.println("\t" + occurences + " occurences of " + compName);
-//			}
 			
 			aggregatedGraph.addGraph(tempGraph);
 			s.getGraph().setModified(false);
 			MainFrame.getInstance().getSessionManager().closeSession(s);
 		}
-//		System.out.println("All compartments:");
-//		for (String compName : allUniqueNames) {
-//			System.out.println("\t" + compName);
-//		}
 		
 		HashMap<String, ArrayList<Node>> label2NodeListMap = new HashMap<String, ArrayList<Node>>();
 		for (Node speciesNode : aggregatedGraph.getNodes()) {
@@ -294,6 +266,57 @@ public class LMMEController {
 			if (AttributeHelper.hasAttribute(node, "cluster", "cluster")) {
 				AttributeHelper.deleteAttribute(node, "cluster", "cluster");
 			}
+		}
+		
+		// write list of species names to a file.
+		try {
+			String fileName = "speciesNames.txt";
+			BufferedWriter bw1 = new BufferedWriter(new FileWriter(fileName));
+			for (Node node : aggregatedGraph.getNodes()) {
+				if (LMMETools.getInstance().isSpecies(node)) {
+					bw1.write(AttributeHelper.getLabel(node, "") + "\r\n");
+				}
+			}
+			bw1.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// write filter list of species names to a file.
+		// currently, filtering strategy is 'has CHEBI annotation'
+		try {
+			String fileName = "filter.txt";
+			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
+			boolean alreadyWritten;
+			int l;
+			for (Node node : aggregatedGraph.getNodes()) {
+				alreadyWritten = false;
+				if (LMMETools.getInstance().isSpecies(node)) {
+					l = 1;
+					while (AttributeHelper.hasAttribute(node, "minerva", "minerva_ref_link" + String.valueOf(l))) {
+						if (((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_ref_link" + String.valueOf(l), "", ""))
+								.startsWith("https://www.ebi.ac.uk/chebi")) {
+							bw.write(AttributeHelper.getLabel(node, "") + "\r\n");
+							alreadyWritten = true;
+						}
+						l += 1;
+					}
+					l = 1;
+					while (AttributeHelper.hasAttribute(node, "minerva", "minerva_ref_type__resource" + String.valueOf(l))) {
+						if (((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_ref_type__resource" + String.valueOf(l), "", ""))
+								.split(Pattern.quote("__"))[0]
+										.equals("CHEBI")) {
+							if (!alreadyWritten) {
+								bw.write(AttributeHelper.getLabel(node, "") + "\r\n");
+							}
+						}
+						l += 1;
+					}
+				}
+			}
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		MainFrame.getInstance().showGraph(aggregatedGraph, null);
