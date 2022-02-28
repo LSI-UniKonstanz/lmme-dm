@@ -376,4 +376,12 @@ public class OverviewGraph {
 		}
 	}
 	
+	public int getNodeSizeSubsystem() {
+		return nodeSizeSubsystem;
+	}
+	
+	public int getNodeSizeInterface() {
+		return nodeSizeInterface;
+	}
+	
 }

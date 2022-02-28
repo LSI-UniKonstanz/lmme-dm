@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -41,6 +42,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -271,54 +273,153 @@ public class LMMETab extends InspectorTab {
 	private JButton instantiateNodeHighlighting() {
 		JFrame frameNodeHighlighting = new JFrame("Node Highlighting");
 		frameNodeHighlighting.setLayout(new TableLayout(new double[][] { { TableLayoutConstants.FILL },
-				{ TableLayoutConstants.MINIMUM, TableLayoutConstants.FILL, 35.0 } }));
-		frameNodeHighlighting.add(new JLabel("<html><p>Insert names of species to be highlighted.</p>"
-				+ "<p> Use one line per species name.</p></html>"), "0,0");
+				{ TableLayoutConstants.MINIMUM, TableLayoutConstants.FILL, 60.0 } }));
+		JLabel lbl = new JLabel("<html><p>Insert species to be highlighted.</p>"
+				+ "<p></p>"
+				+ "<p> Use one line per species.</p>"
+				+ "<p> Per line, use the form <b>nodelabel;doublevalue</b>.</p></html>");
+		lbl.setBorder(new EmptyBorder(5, 15, 5, 15));
+		frameNodeHighlighting.add(lbl, "0,0");
 		JTextArea textArea = new JTextArea();
 		textArea.setEditable(true);
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		frameNodeHighlighting.add(scrollPane, "0,1");
-		JButton button = new JButton("Highlight Nodes");
-		frameNodeHighlighting.add(button, "0,2");
-		button.addActionListener(new ActionListener() {
+		JButton button1 = new JButton("Color in Overview");
+		JButton button2 = new JButton("Color in Subsystem View");
+		JButton button3 = new JButton("Size in Overview");
+		JButton button4 = new JButton("Size in Subsystem View");
+		
+		JPanel combinedPanel = new JPanel();
+		combinedPanel.setLayout(new TableLayout(new double[][] { { TableLayoutConstants.FILL, TableLayoutConstants.FILL },
+				{ TableLayoutConstants.FILL, TableLayoutConstants.FILL } }));
+		combinedPanel.add(button1, "0,0");
+		combinedPanel.add(button2, "1,0");
+		combinedPanel.add(button3, "0,1");
+		combinedPanel.add(button4, "1,1");
+		combinedPanel.setBackground(getBackground());
+		
+		frameNodeHighlighting.add(combinedPanel, "0,2");
+		ActionListener al = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!LMMEController.getInstance().getCurrentSession().isModelSet()) {
 					frameNodeHighlighting.setVisible(false);
 					return;
 				}
 				BaseGraph baseGraph = LMMEController.getInstance().getCurrentSession().getBaseGraph();
-				ArrayList<Node> nodesToHighlight = new ArrayList<Node>();
-				for (String name : textArea.getText().split("\\n")) {
-					for (Node node : baseGraph.getSpeciesNodes()) {
-						if (AttributeHelper.getLabel(node, "none").equals(name)) {
-							nodesToHighlight.add(node);
-						}
-					}
-				}
 				
-				if (LMMEController.getInstance().getCurrentSession().isOverviewGraphConstructed()) {
-					for (SubsystemGraph subsystem : LMMEController.getInstance().getCurrentSession().getOverviewGraph()
-							.getDecomposition().getSubsystems()) {
-						AttributeHelper.setFillColor(LMMEController.getInstance().getCurrentSession().getOverviewGraph()
-								.getNodeOfSubsystem(subsystem), Color.WHITE);
-						for (Node node : nodesToHighlight) {
-							if (subsystem.getSpeciesNodes().contains(node)) {
-								AttributeHelper.setFillColor(LMMEController.getInstance().getCurrentSession().getOverviewGraph()
-										.getNodeOfSubsystem(subsystem), Color.RED);
+				HashMap<Node, Double> nodesHighlightMap = new HashMap<>();
+				double maxVal = Double.MIN_VALUE;
+				double minVal = Double.MAX_VALUE;
+				
+				for (String nameValuePair : textArea.getText().split("\\n")) {
+					String[] splitStr = nameValuePair.split(Pattern.quote(";"));
+					if (splitStr.length > 1) {
+						double value = Double.parseDouble(splitStr[1]);
+						if (value > maxVal) {
+							maxVal = value;
+						}
+						if (value < minVal) {
+							minVal = value;
+						}
+						for (Node node : baseGraph.getSpeciesNodes()) {
+							if (AttributeHelper.getLabel(node, "none").equals(splitStr[0])) {
+								nodesHighlightMap.put(node, value);
 							}
 						}
 					}
 				}
 				
-				if (LMMEViewManagement.getInstance().getSubsystemFrame() != null) {
+				if (e.getSource().equals(button1) && LMMEController.getInstance().getCurrentSession().isOverviewGraphConstructed()) {
+					OverviewGraph og = LMMEController.getInstance().getCurrentSession().getOverviewGraph();
+					
+					if (!getColorInterfaces()) {
+						for (Node node : og.getGraph().getNodes()) {
+							AttributeHelper.setFillColor(node, Color.WHITE);
+							for (Node node2 : nodesHighlightMap.keySet()) {
+								if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+									double currentVal = nodesHighlightMap.get(node2).doubleValue();
+									int frac = (int) Math.round(((currentVal - minVal) / (maxVal - minVal)) * 200.0);
+									Color c = new Color(frac, frac, 255);
+									AttributeHelper.setFillColor(node, c);
+								}
+							}
+						}
+					}
+					
+					for (SubsystemGraph subsystem : og.getDecomposition().getSubsystems()) {
+						AttributeHelper.setFillColor(og.getNodeOfSubsystem(subsystem), Color.WHITE);
+						double subsystemMinValue = Double.MAX_VALUE;
+						for (Node node : nodesHighlightMap.keySet()) {
+							if (subsystem.getSpeciesNodes().contains(node) && nodesHighlightMap.get(node) < subsystemMinValue) {
+								subsystemMinValue = nodesHighlightMap.get(node).doubleValue();
+								double currentVal = nodesHighlightMap.get(node).doubleValue();
+								int frac = (int) Math.round(((currentVal - minVal) / (maxVal - minVal)) * 200.0);
+								Color c = new Color(frac, frac, 255);
+								AttributeHelper.setFillColor(og.getNodeOfSubsystem(subsystem), c);
+							}
+						}
+					}
+				}
+				
+				if (e.getSource().equals(button2) && LMMEViewManagement.getInstance().getSubsystemFrame() != null) {
 					Graph csg = LMMEViewManagement.getInstance().getSubsystemFrame().getView().getGraph();
 					for (Node node : csg.getNodes()) {
-						if (AttributeHelper.getFillColor(node).equals(Color.RED)) {
-							AttributeHelper.setFillColor(node, Color.WHITE);
-						}
-						for (Node node2 : nodesToHighlight) {
+						for (Node node2 : nodesHighlightMap.keySet()) {
 							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
-								AttributeHelper.setFillColor(node, Color.RED);
+								double currentVal = nodesHighlightMap.get(node2).doubleValue();
+								int frac = (int) Math.round(((currentVal - minVal) / (maxVal - minVal)) * 200.0);
+								Color c = new Color(frac, frac, 255);
+								AttributeHelper.setFillColor(node, c);
+							}
+						}
+					}
+				}
+				
+				if (e.getSource().equals(button3) && LMMEController.getInstance().getCurrentSession().isOverviewGraphConstructed()) {
+					OverviewGraph og = LMMEController.getInstance().getCurrentSession().getOverviewGraph();
+					
+					for (Node node : og.getGraph().getNodes()) {
+						if (og.getSubsystemGraphOfNode(node) != null) { // subsystem node
+							AttributeHelper.setSize(node, og.getSubsystemNodeSize(), og.getSubsystemNodeSize());
+						} else { // interface node
+							AttributeHelper.setSize(node, og.getInterfaceNodeSize(), og.getInterfaceNodeSize());
+						}
+						for (Node node2 : nodesHighlightMap.keySet()) {
+							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+								double currentVal = nodesHighlightMap.get(node2).doubleValue();
+								double frac = 1.0 - (currentVal - minVal) / (maxVal - minVal);
+								int size = (int) Math.round(((double) og.getNodeSizeInterface()) * (1.5 * frac + 1.5));
+								AttributeHelper.setSize(node, size, size);
+							}
+						}
+					}
+					
+					for (SubsystemGraph subsystem : og.getDecomposition().getSubsystems()) {
+						AttributeHelper.setSize(og.getNodeOfSubsystem(subsystem), og.getNodeSizeSubsystem(), og.getNodeSizeSubsystem());
+						double subsystemMinValue = Double.MAX_VALUE;
+						for (Node node : nodesHighlightMap.keySet()) {
+							if (subsystem.getSpeciesNodes().contains(node) && nodesHighlightMap.get(node) < subsystemMinValue) {
+								subsystemMinValue = nodesHighlightMap.get(node).doubleValue();
+								double currentVal = nodesHighlightMap.get(node).doubleValue();
+								double frac = 1.0 - (currentVal - minVal) / (maxVal - minVal);
+								int size = (int) Math.round(((double) og.getNodeSizeSubsystem()) * (0.3 * frac + 1.2));
+								AttributeHelper.setSize(og.getNodeOfSubsystem(subsystem), size, size);
+							}
+						}
+					}
+				}
+				
+				if (e.getSource().equals(button4) && LMMEViewManagement.getInstance().getSubsystemFrame() != null) {
+					Graph csg = LMMEViewManagement.getInstance().getSubsystemFrame().getView().getGraph();
+					int nodeSize = LMMESubsystemViewManagement.getInstance().getNodeSize();
+					for (Node node : csg.getNodes()) {
+						AttributeHelper.setSize(node, nodeSize, nodeSize);
+						for (Node node2 : nodesHighlightMap.keySet()) {
+							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+								double currentVal = nodesHighlightMap.get(node2).doubleValue();
+								double frac = 1.0 - (currentVal - minVal) / (maxVal - minVal);
+								int size = (int) Math.round(((double) nodeSize) * (1.5 * frac + 1.5));
+								AttributeHelper.setSize(node, size, size);
 							}
 						}
 					}
@@ -326,7 +427,11 @@ public class LMMETab extends InspectorTab {
 				
 				frameNodeHighlighting.setVisible(false);
 			}
-		});
+		};
+		button1.addActionListener(al);
+		button2.addActionListener(al);
+		button3.addActionListener(al);
+		button4.addActionListener(al);
 		
 		frameNodeHighlighting.setSize(400, 400);
 		frameNodeHighlighting.setLocationRelativeTo(null);
