@@ -68,6 +68,7 @@ import de.ipk_gatersleben.ag_nw.graffiti.GraphHelper;
 import de.ipk_gatersleben.ag_nw.graffiti.NodeTools;
 import de.ipk_gatersleben.ag_nw.graffiti.plugins.gui.dbe.MergeNodes;
 import de.ipk_gatersleben.ag_nw.graffiti.plugins.ios.sbml.SBMLSpeciesHelper;
+import de.ipk_gatersleben.ag_nw.graffiti.plugins.ios.sbml.SBML_Constants;
 
 /**
  * This class controls and coordinates the actions of LMME.
@@ -206,6 +207,13 @@ public class LMMEController {
 		}
 		if (MainFrame.getInstance().getActiveEditorSession() != null) {
 			Graph graph = MainFrame.getInstance().getActiveEditorSession().getGraph();
+			// restore role attribute to sbml-style
+			for (Node node : graph.getNodes()) {
+				if (AttributeHelper.hasAttribute(node, "cd19dm", "node_type")) {
+					String nodeType = (String) AttributeHelper.getAttributeValue(node, "cd19dm", "node_type", "", "");
+					AttributeHelper.setAttribute(node, SBML_Constants.SBML, SBML_Constants.SBML_ROLE, nodeType);
+				}
+			}
 			SBMLSpeciesHelper helper = new SBMLSpeciesHelper(graph);
 			if (helper.getSpeciesNodes().isEmpty()) {
 				JOptionPane.showMessageDialog(null, "The currently active graph is no SBML model.");
