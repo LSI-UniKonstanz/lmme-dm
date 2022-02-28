@@ -37,7 +37,7 @@ public class DiseaseMapPathwayDecomposition extends MMDecompositionAlgorithm {
 	@Override
 	protected ArrayList<SubsystemGraph> runSpecific(HashSet<Node> alreadyClassifiedNodes) {
 		
-		return determineSubsystemsFromReactionAttributes(LMMEConstants.DISEASE_MAP_PATHWAY_ATRIBUTE, false, "", alreadyClassifiedNodes);
+		return determineSubsystemsFromReactionAttributes(LMMEConstants.DISEASE_MAP_PATHWAY_ATTRIBUTE, false, "", alreadyClassifiedNodes);
 		
 	}
 	

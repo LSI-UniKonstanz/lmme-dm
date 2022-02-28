@@ -37,7 +37,7 @@ public class LMMEConstants {
 	public static final String TRANSPORTER_SUBSYSTEM = "Transport Reactions (algorithmically derived)";
 	public static final String DEFAULT_SUBSYSTEM = "Default Subsystem (algorithmically derived)";
 	
-	public static final String DISEASE_MAP_PATHWAY_ATRIBUTE = "dmPathway";
+	public static final String DISEASE_MAP_PATHWAY_ATTRIBUTE = "dmPathway";
 	
 	/**
 	 * These are the global and overview pathway maps from KEGG.

@@ -110,8 +110,8 @@ public class MinervaDMLayout implements MMSubsystemLayout {
 			boolean initialised = false;
 			for (Node node : nodes) {
 				AttributeHelper.setPosition(node,
-						Double.parseDouble((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_x", 0, "")),
-						Double.parseDouble((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_y", 0, "")));
+						((Double) AttributeHelper.getAttributeValue(node, "minerva", "minerva_x", 0.0, Double.valueOf(0.0))),
+						((Double) AttributeHelper.getAttributeValue(node, "minerva", "minerva_y", 0.0, Double.valueOf(0.0))));
 				if (!initialised) {
 					minX = AttributeHelper.getPositionX(node);
 					maxX = AttributeHelper.getPositionX(node);
@@ -189,8 +189,10 @@ public class MinervaDMLayout implements MMSubsystemLayout {
 			HashSet<Node> nodes = subsystemMap.get(subsystem);
 			double x, y;
 			for (Node node : nodes) {
-				x = Double.parseDouble((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_x", 0, ""));
-				y = Double.parseDouble((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_y", 0, ""));
+//				x = Double.parseDouble((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_x", 0, ""));
+//				y = Double.parseDouble((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_y", 0, ""));
+				x = AttributeHelper.getPositionX(node);
+				y = AttributeHelper.getPositionY(node);
 				x += subsystem2NewCenterMap.get(subsystem).x;
 				y += subsystem2NewCenterMap.get(subsystem).y;
 				// increase space between nodes to reduce node overlap.
