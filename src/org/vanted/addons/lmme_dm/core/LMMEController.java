@@ -15,15 +15,12 @@
 package org.vanted.addons.lmme_dm.core;
 
 import java.awt.Color;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
@@ -34,11 +31,9 @@ import org.graffiti.editor.GraffitiInternalFrame;
 import org.graffiti.editor.GravistoService;
 import org.graffiti.editor.MainFrame;
 import org.graffiti.editor.MessageType;
-import org.graffiti.graph.AdjListGraph;
 import org.graffiti.graph.Graph;
 import org.graffiti.graph.Node;
 import org.graffiti.plugin.algorithm.Algorithm;
-import org.graffiti.session.Session;
 import org.graffiti.util.InstanceLoader;
 import org.vanted.addons.lmme_dm.analysis.OverRepresentationAnalysis;
 import org.vanted.addons.lmme_dm.decomposition.CompartmentMMDecomposition;
@@ -65,8 +60,6 @@ import org.vanted.addons.lmme_dm.ui.LMMETab;
 import org.vanted.addons.lmme_dm.ui.LMMEViewManagement;
 
 import de.ipk_gatersleben.ag_nw.graffiti.GraphHelper;
-import de.ipk_gatersleben.ag_nw.graffiti.NodeTools;
-import de.ipk_gatersleben.ag_nw.graffiti.plugins.gui.dbe.MergeNodes;
 import de.ipk_gatersleben.ag_nw.graffiti.plugins.ios.sbml.SBMLSpeciesHelper;
 import de.ipk_gatersleben.ag_nw.graffiti.plugins.ios.sbml.SBML_Constants;
 
@@ -207,6 +200,7 @@ public class LMMEController {
 		}
 		if (MainFrame.getInstance().getActiveEditorSession() != null) {
 			Graph graph = MainFrame.getInstance().getActiveEditorSession().getGraph();
+			
 			// restore role attribute to sbml-style
 			for (Node node : graph.getNodes()) {
 				if (AttributeHelper.hasAttribute(node, "cd19dm", "node_type")) {
@@ -214,26 +208,28 @@ public class LMMEController {
 					AttributeHelper.setAttribute(node, SBML_Constants.SBML, SBML_Constants.SBML_ROLE, nodeType);
 				}
 			}
+			
 			// restore origin diagram annotation
 			for (Node reactionNode : graph.getNodes()) {
 				if (LMMETools.getInstance().isReaction(reactionNode)) {
 					if (AttributeHelper.hasAttribute(reactionNode, "cd19dm", "diagram")) {
 						String diagramAnnotation = (String) AttributeHelper.getAttributeValue(reactionNode, "cd19dm", "diagram", "", "");
-						if (diagramAnnotation.indexOf(";") != -1) {
-							System.out.println("Check diagram annotation: " + diagramAnnotation);
-						}
+//						if (diagramAnnotation.indexOf(";") != -1) {
+//							System.out.println("Check diagram annotation: " + diagramAnnotation);
+//						}
 						AttributeHelper.setAttribute(reactionNode, LMMEConstants.ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_PATHWAY_ATTRIBUTE,
 								diagramAnnotation.split(Pattern.quote(";"))[0]);
 					}
 				}
-				System.out.println("shape: " + AttributeHelper.getAttributeValue(reactionNode, "graphics", "shape", "", ""));
 			}
+			
 			// assign species circular shape
 			for (Node speciesNode : graph.getNodes()) {
 				if (LMMETools.getInstance().isSpecies(speciesNode)) {
 					AttributeHelper.setShape(speciesNode, "org.graffiti.plugins.views.defaults.CircleNodeShape");
 				}
 			}
+			
 			SBMLSpeciesHelper helper = new SBMLSpeciesHelper(graph);
 			if (helper.getSpeciesNodes().isEmpty()) {
 				JOptionPane.showMessageDialog(null, "The currently active graph is no SBML model.");
@@ -245,110 +241,6 @@ public class LMMEController {
 			JOptionPane.showMessageDialog(null, "There is no active model.");
 			return;
 		}
-	}
-	
-	private void aggregateModels() {
-		
-		Graph aggregatedGraph = new AdjListGraph();
-		aggregatedGraph.setName("Aggregated Model");
-		Set<Session> session = new HashSet<Session>(MainFrame.getSessions());
-//		HashSet<String> allUniqueNames = new HashSet<String>();
-		for (Session s : session) {
-			Graph tempGraph = new AdjListGraph();
-			tempGraph.addGraph(s.getGraph());
-			// get name without '.xml' suffix.
-			String tempName = s.getGraph().getName().substring(0, s.getGraph().getName().length() - 4);
-			for (Node reactionNode : tempGraph.getNodes()) {
-				if (LMMETools.getInstance().isReaction(reactionNode)) {
-					AttributeHelper.setAttribute(reactionNode, LMMEConstants.ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_PATHWAY_ATTRIBUTE, tempName);
-				}
-			}
-			
-			aggregatedGraph.addGraph(tempGraph);
-			s.getGraph().setModified(false);
-			MainFrame.getInstance().getSessionManager().closeSession(s);
-		}
-		
-		HashMap<String, ArrayList<Node>> label2NodeListMap = new HashMap<String, ArrayList<Node>>();
-		for (Node speciesNode : aggregatedGraph.getNodes()) {
-			String speciesName = AttributeHelper.getLabel(speciesNode, "");
-			
-			// only merge species, and ignore those with generic names such as 's234'
-			if (LMMETools.getInstance().isSpecies(speciesNode) && !speciesName.split(Pattern.quote("__"))[0].matches("s\\d+")) {
-				if (!label2NodeListMap.containsKey(speciesName)) {
-					label2NodeListMap.put(speciesName, new ArrayList<Node>());
-				}
-				label2NodeListMap.get(speciesName).add(speciesNode);
-			}
-		}
-		for (ArrayList<Node> nodesToMerge : label2NodeListMap.values()) {
-			if (nodesToMerge.size() > 1) {
-				Node newNode = MergeNodes.mergeNode(aggregatedGraph, nodesToMerge, NodeTools.getCenter(nodesToMerge), false);
-				AttributeHelper.setAttribute(newNode, "lmme_dm", "wasMerged", true);
-				aggregatedGraph.deleteAll(nodesToMerge);
-			}
-		}
-		
-		// get rid of unused cluster attributes.
-		for (Node node : aggregatedGraph.getNodes()) {
-			if (AttributeHelper.hasAttribute(node, "cluster", "cluster")) {
-				AttributeHelper.deleteAttribute(node, "cluster", "cluster");
-			}
-		}
-		
-		// write list of species names to a file.
-		try {
-			String fileName = "speciesNames.txt";
-			BufferedWriter bw1 = new BufferedWriter(new FileWriter(fileName));
-			for (Node node : aggregatedGraph.getNodes()) {
-				if (LMMETools.getInstance().isSpecies(node)) {
-					bw1.write(AttributeHelper.getLabel(node, "") + "\r\n");
-				}
-			}
-			bw1.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		// write filter list of species names to a file.
-		// currently, filtering strategy is 'has CHEBI annotation'
-		try {
-			String fileName = "filter.txt";
-			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
-			boolean alreadyWritten;
-			int l;
-			for (Node node : aggregatedGraph.getNodes()) {
-				alreadyWritten = false;
-				if (LMMETools.getInstance().isSpecies(node)) {
-					l = 1;
-					while (AttributeHelper.hasAttribute(node, "minerva", "minerva_ref_link" + String.valueOf(l))) {
-						if (((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_ref_link" + String.valueOf(l), "", ""))
-								.startsWith("https://www.ebi.ac.uk/chebi")) {
-							bw.write(AttributeHelper.getLabel(node, "") + "\r\n");
-							alreadyWritten = true;
-						}
-						l += 1;
-					}
-					l = 1;
-					while (AttributeHelper.hasAttribute(node, "minerva", "minerva_ref_type__resource" + String.valueOf(l))) {
-						if (((String) AttributeHelper.getAttributeValue(node, "minerva", "minerva_ref_type__resource" + String.valueOf(l), "", ""))
-								.split(Pattern.quote("__"))[0]
-										.equals("CHEBI")) {
-							if (!alreadyWritten) {
-								bw.write(AttributeHelper.getLabel(node, "") + "\r\n");
-							}
-						}
-						l += 1;
-					}
-				}
-			}
-			bw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		MainFrame.getInstance().showGraph(aggregatedGraph, null);
-		
 	}
 	
 	/**
