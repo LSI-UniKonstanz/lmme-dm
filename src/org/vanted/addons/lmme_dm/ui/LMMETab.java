@@ -65,7 +65,6 @@ import org.vanted.addons.lmme_dm.decomposition.MMDecompositionAlgorithm;
 import org.vanted.addons.lmme_dm.graphs.BaseGraph;
 import org.vanted.addons.lmme_dm.graphs.OverviewGraph;
 import org.vanted.addons.lmme_dm.graphs.SubsystemGraph;
-import org.vanted.addons.lmme_dm.layout.MinervaDMLayout;
 import org.vanted.addons.lmme_dm.layout.StressMinMMLayout;
 
 import info.clearthought.layout.TableLayout;
@@ -277,7 +276,7 @@ public class LMMETab extends InspectorTab {
 		JLabel lbl = new JLabel("<html><p>Insert species to be highlighted.</p>"
 				+ "<p></p>"
 				+ "<p> Use one line per species.</p>"
-				+ "<p> Per line, use the form <b>nodelabel;doublevalue</b>.</p></html>");
+				+ "<p> Per line, use the form <b>nodelabel,doublevalue</b>.</p></html>");
 		lbl.setBorder(new EmptyBorder(5, 15, 5, 15));
 		frameNodeHighlighting.add(lbl, "0,0");
 		JTextArea textArea = new JTextArea();
@@ -312,7 +311,7 @@ public class LMMETab extends InspectorTab {
 				double minVal = Double.MAX_VALUE;
 				
 				for (String nameValuePair : textArea.getText().split("\\n")) {
-					String[] splitStr = nameValuePair.split(Pattern.quote(";"));
+					String[] splitStr = nameValuePair.split(Pattern.quote(","));
 					if (splitStr.length > 1) {
 						double value = Double.parseDouble(splitStr[1]);
 						if (value > maxVal) {
