@@ -313,15 +313,20 @@ public class LMMETab extends InspectorTab {
 				for (String nameValuePair : textArea.getText().split("\\n")) {
 					String[] splitStr = nameValuePair.split(Pattern.quote(","));
 					if (splitStr.length > 1) {
-						double value = Double.parseDouble(splitStr[1]);
+						double value = Double.parseDouble(splitStr[splitStr.length - 1]);
 						if (value > maxVal) {
 							maxVal = value;
 						}
 						if (value < minVal) {
 							minVal = value;
 						}
+						String nodeLabel = splitStr[0];
+						for (int i = 1; i < splitStr.length - 1; i++) {
+							nodeLabel += ",";
+							nodeLabel += splitStr[i];
+						}
 						for (Node node : baseGraph.getSpeciesNodes()) {
-							if (AttributeHelper.getLabel(node, "none").equals(splitStr[0])) {
+							if (AttributeHelper.getLabel(node, "none").equals(nodeLabel)) {
 								nodesHighlightMap.put(node, value);
 							}
 						}
