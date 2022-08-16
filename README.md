@@ -5,7 +5,7 @@ LMME-DM has been developed as part of the **COVID-19 Disease Map** project. If y
 
 **Attention:** If you want to explore large metabolic models in general, check out the original version of **LMME**, which lives in its own [repository](https://github.com/LSI-UniKonstanz/lmme).
 
-![teaser-image](/images/app_teaser.png)
+![teaser-image](/images/lmme-dm-image.png)
 
 ## Getting Started (Running the Application)
 ### Requirements
@@ -59,3 +59,9 @@ If you use LMME-DM in or for a scientific publication, please cite our latest pu
 **LMME-DM** is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](https://www.gnu.org/licenses/) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+## Image attributions
+As part of our teaser image, we used the following:
+- COVID-19 image: from [cdc](https://unsplash.com/@cdc) on [Unsplash](https://unsplash.com) under the [Unsplash License](https://unsplash.com/license).
+- Monitor image: from [clker-free-vector-images](https://pixabay.com/de/users/clker-free-vector-images-3736/) on [Pixabay](https://pixabay.com) under the [Pixabay License](https://pixabay.com/de/service/license/).
+- Font: *Open Sans* from Steve Matteson on [Google Fonts](https://fonts.google.com/) under the [Open Font License](https://scripts.sil.org/OFL)
