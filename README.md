@@ -1,9 +1,9 @@
 # LMME-DM (**L**arge **M**etabolic **M**odel **E**xplorer for **D**isease **M**aps)
 LMME-DM (Large Metabolic Model Explorer for Disease Maps) is an Add-on for the open-source software [VANTED](www.vanted.org). It facilitates the visual exploration of disease maps by showing their meaningful subsystems and by providing analytic techniques that may be applied successively.
 
-LMME-DM has been developed as part of the **COVID-19 Disease Map** project. If you're interested, you find [our project page](https://covid.pages.uni.lu/)
+LMME-DM has been developed as part of the **COVID-19 Disease Map** project. If you're interested, visit [our project page](https://covid.pages.uni.lu/).
 
-**Attention:** If you want to explore large metabolic models in general, check out the original verion of **LMME**, which lives in its own [repository](https://github.com/LSI-UniKonstanz/lmme).
+**Attention:** If you want to explore large metabolic models in general, check out the original version of **LMME**, which lives in its own [repository](https://github.com/LSI-UniKonstanz/lmme).
 
 ![teaser-image](/images/app_teaser.png)
 
@@ -15,7 +15,7 @@ LMME-DM has been developed as part of the **COVID-19 Disease Map** project. If y
 ### Download & Installation
 To install LMME-DM, you need its jar file, which you can either download or build yourself.
 #### Download the jar file
-You can download the current version of **LMME-DM** [here](https://www.cls.uni-konstanz.de/software/lmme/getting-started/).
+You can download the current version of **LMME-DM** [here](https://www.cls.uni-konstanz.de/software/lmme/lmme-dm/).
 #### Build the jar file yourself
 Within Eclipse, run the **make.xml** file as an Ant build. The jar will be created in the root directory.
 #### Installation
@@ -25,11 +25,19 @@ As soon as **LMME-DM** has been installed into your Vanted program instance, you
 
 After loading the model, navigate to the LMME-DM tab on the right and press the uppermost button Set model. You will immediately see some general information about the disease map, appearing at the top of the tab.
 
-You can now select the disease map decomposition method and press the Show Overview Graph button. This computes a decomposition and shows the overview graph on the left side of the application window. For a detailed description of the individual settings, see the Learn section.
+You can now select the disease map decomposition method and press the Show Overview Graph button. This computes a decomposition and shows the overview graph on the left side of the application window. For a detailed description of the individual settings, see the [Learn section](https://www.cls.uni-konstanz.de/software/lmme/learn/) on the **LMME** webpage.
 
 As soon as the overview graph has been constructed, you can select some of its nodes and press the Show Selected Subsystems button at the bottom of the tab to have the consolidated subsystem graph shown on the right side of the application window.
 
-If some errors occurred during the steps described above, or if you are interested in the individual settings or additional features that have not been covered above, please have a look at the [Learn section](https://www.cls.uni-konstanz.de/software/lmme/learn/) on the **LMME** webpage. However, as this tool version is specifically designed to work with disease maps, not all features described there may work as intended.
+If some errors occurred during the steps described above, or if you are interested in the individual settings or additional features that have not been covered above, please have a look at the [Learn section](https://www.cls.uni-konstanz.de/software/lmme/learn/) on the **LMME** webpage.
+
+**Attention:** As this tool version is specifically designed to work with disease maps, not all features described there may work as intended.
+
+### Insert Data
+You can now insert data to be analysed in the context of the hierarchical disese map. To open the data mapping menu, click the button Node Highlighting at the top of the right tab. You can insert data in plain text in the form `nodelabel,doublevalue` (one node per line). To map the data, click on one of the buttons below, e.g. Color in Overview to have the data mapped on the node color in the right overview panel.
+
+### The COVID-19 Disease Map as an example
+You can find a version of the COVID-19 disease map as well as a dataset with calculated centrality values on the [LMME-DM webpage](https://www.cls.uni-konstanz.de/software/lmme/lmme-dm/).
 
 ## Getting Started (Development)
 1. Check out the [VANTED repository](https://github.com/LSI-UniKonstanz/vanted) and [VANTED libraries repository](https://github.com/LSI-UniKonstanz/vanted-libraries) (see also [here](https://github.com/LSI-UniKonstanz/vanted/wiki/Sourcecode) for more information) as well as the LMME-DM repository and load them into Eclipse (or the IDE of your choice).
