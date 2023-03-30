@@ -502,8 +502,8 @@ public class LMMETab extends InspectorTab {
 		JLabel lblORADescription = new JLabel(
 				"<html><p>The Over-Representation Analysis (ORA) compares the amount of differentially expressed metabolites within a subsystem to the expected amount resulting from the amount of differentially expressed metabolites within the reference set of metabolites.</p>"
 						+ "<p></p>"
-						+ "<p><b>Differentially Expressed Metabolites:</b> Please upload a file that contains the IDs of the differentially expressed metabolites</p>"
-						+ "<p><b>Reference Metabolites:</b> Please upload a file that contains the IDs of the total set of metabolites that have been measured (including the differentially expressed ones). If no file is selected, the total set of metabolites of the model is used as default.</p></html>");
+						+ "<p><b>Differentially Expressed Metabolites:</b> Please upload a file that contains the node labels of the differentially expressed metabolites</p>"
+						+ "<p><b>Reference Metabolites:</b> Please upload a file that contains the node labels of the total set of metabolites that have been measured (including the differentially expressed ones). If no file is selected, the total set of metabolites of the model is used as default.</p></html>");
 		
 		JPanel panelORADescription = new JPanel();
 		panelORADescription.setLayout(
