@@ -342,7 +342,7 @@ public class LMMETab extends InspectorTab {
 							for (Node node2 : nodesHighlightMap.keySet()) {
 								if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
 									double currentVal = nodesHighlightMap.get(node2).doubleValue();
-									int frac = (int) Math.round(((currentVal - minVal) / (maxVal - minVal)) * 200.0);
+									int frac = (int) Math.round((1.0 - (currentVal - minVal) / (maxVal - minVal)) * 200.0);
 									Color c = new Color(frac, frac, 255);
 									AttributeHelper.setFillColor(node, c);
 								}
@@ -352,12 +352,12 @@ public class LMMETab extends InspectorTab {
 					
 					for (SubsystemGraph subsystem : og.getDecomposition().getSubsystems()) {
 						AttributeHelper.setFillColor(og.getNodeOfSubsystem(subsystem), Color.WHITE);
-						double subsystemMinValue = Double.MAX_VALUE;
+						double subsystemMaxValue = Double.MIN_VALUE;
 						for (Node node : nodesHighlightMap.keySet()) {
-							if (subsystem.getSpeciesNodes().contains(node) && nodesHighlightMap.get(node) < subsystemMinValue) {
-								subsystemMinValue = nodesHighlightMap.get(node).doubleValue();
+							if (subsystem.getSpeciesNodes().contains(node) && nodesHighlightMap.get(node) > subsystemMaxValue) {
+								subsystemMaxValue = nodesHighlightMap.get(node).doubleValue();
 								double currentVal = nodesHighlightMap.get(node).doubleValue();
-								int frac = (int) Math.round(((currentVal - minVal) / (maxVal - minVal)) * 200.0);
+								int frac = (int) Math.round((1.0 - (currentVal - minVal) / (maxVal - minVal)) * 200.0);
 								Color c = new Color(frac, frac, 255);
 								AttributeHelper.setFillColor(og.getNodeOfSubsystem(subsystem), c);
 							}
@@ -371,7 +371,7 @@ public class LMMETab extends InspectorTab {
 						for (Node node2 : nodesHighlightMap.keySet()) {
 							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
 								double currentVal = nodesHighlightMap.get(node2).doubleValue();
-								int frac = (int) Math.round(((currentVal - minVal) / (maxVal - minVal)) * 200.0);
+								int frac = (int) Math.round((1.0 - (currentVal - minVal) / (maxVal - minVal)) * 200.0);
 								Color c = new Color(frac, frac, 255);
 								AttributeHelper.setFillColor(node, c);
 							}
@@ -391,7 +391,7 @@ public class LMMETab extends InspectorTab {
 						for (Node node2 : nodesHighlightMap.keySet()) {
 							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
 								double currentVal = nodesHighlightMap.get(node2).doubleValue();
-								double frac = 1.0 - (currentVal - minVal) / (maxVal - minVal);
+								double frac = (currentVal - minVal) / (maxVal - minVal);
 								int size = (int) Math.round(((double) og.getNodeSizeInterface()) * (1.5 * frac + 1.5));
 								AttributeHelper.setSize(node, size, size);
 							}
@@ -400,12 +400,12 @@ public class LMMETab extends InspectorTab {
 					
 					for (SubsystemGraph subsystem : og.getDecomposition().getSubsystems()) {
 						AttributeHelper.setSize(og.getNodeOfSubsystem(subsystem), og.getNodeSizeSubsystem(), og.getNodeSizeSubsystem());
-						double subsystemMinValue = Double.MAX_VALUE;
+						double subsystemMaxValue = Double.MIN_VALUE;
 						for (Node node : nodesHighlightMap.keySet()) {
-							if (subsystem.getSpeciesNodes().contains(node) && nodesHighlightMap.get(node) < subsystemMinValue) {
-								subsystemMinValue = nodesHighlightMap.get(node).doubleValue();
+							if (subsystem.getSpeciesNodes().contains(node) && nodesHighlightMap.get(node) > subsystemMaxValue) {
+								subsystemMaxValue = nodesHighlightMap.get(node).doubleValue();
 								double currentVal = nodesHighlightMap.get(node).doubleValue();
-								double frac = 1.0 - (currentVal - minVal) / (maxVal - minVal);
+								double frac = (currentVal - minVal) / (maxVal - minVal);
 								int size = (int) Math.round(((double) og.getNodeSizeSubsystem()) * (0.3 * frac + 1.2));
 								AttributeHelper.setSize(og.getNodeOfSubsystem(subsystem), size, size);
 							}
@@ -421,7 +421,7 @@ public class LMMETab extends InspectorTab {
 						for (Node node2 : nodesHighlightMap.keySet()) {
 							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
 								double currentVal = nodesHighlightMap.get(node2).doubleValue();
-								double frac = 1.0 - (currentVal - minVal) / (maxVal - minVal);
+								double frac = (currentVal - minVal) / (maxVal - minVal);
 								int size = (int) Math.round(((double) nodeSize) * (1.5 * frac + 1.5));
 								AttributeHelper.setSize(node, size, size);
 							}
