@@ -76,11 +76,20 @@ public class DiseaseMapPathwayDecomposition extends MMDecompositionAlgorithm {
 		
 	}
 	
+//	@Override
+//	public String getName() {
+//		
+//		return "DM Decomposition";
+//		
+//	}
+	
 	@Override
 	public String getName() {
-		
-		return "Disease Map Pathway Decomposition";
-		
+		return name();
+	}
+	
+	public static String name() {
+		return "DM Decomposition";
 	}
 	
 }

@@ -61,6 +61,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
 import org.vanted.addons.lmme_dm.core.LMMEController;
 import org.vanted.addons.lmme_dm.core.LMMESession;
+import org.vanted.addons.lmme_dm.decomposition.DiseaseMapPathwayDecomposition;
 import org.vanted.addons.lmme_dm.decomposition.MMDecompositionAlgorithm;
 import org.vanted.addons.lmme_dm.graphs.BaseGraph;
 import org.vanted.addons.lmme_dm.graphs.OverviewGraph;
@@ -675,7 +676,7 @@ public class LMMETab extends InspectorTab {
 		this.panelNoSelection.setLayout(new TableLayout(
 				new double[][] { { TableLayoutConstants.PREFERRED }, { TableLayoutConstants.MINIMUM } }));
 		this.panelNoSelection.add(new JLabel(
-				"<html>Select a single edge or a single<br>node in the overview graph to<br>show additional information here.</html>"),
+				"<html>Select a single edge or a<br>single node in the overview<br>graph to show additional<br>information here.</html>"),
 				"0,0");
 		this.panelNoSelection.setBackground(Color.WHITE);
 		
@@ -730,7 +731,8 @@ public class LMMETab extends InspectorTab {
 				fpSettings.layoutRows();
 			}
 		});
-		cbDecompMethod.setSelectedIndex(0);
+		cbDecompMethod.setSelectedItem(DiseaseMapPathwayDecomposition.name());
+		// cbDecompMethod.setSelectedIndex(0);
 		
 		this.ckbAddTransporterSubS = new JCheckBox("Add Transporter Subsystem");
 		this.ckbAddTransporterSubS
