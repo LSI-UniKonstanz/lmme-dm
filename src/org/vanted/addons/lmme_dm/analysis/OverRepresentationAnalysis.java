@@ -24,6 +24,7 @@ import java.util.HashSet;
 import org.AttributeHelper;
 import org.apache.commons.math3.distribution.HypergeometricDistribution;
 import org.graffiti.graph.Node;
+import org.vanted.addons.lmme_dm.core.LMMEConstants;
 import org.vanted.addons.lmme_dm.core.LMMEController;
 import org.vanted.addons.lmme_dm.graphs.BaseGraph;
 import org.vanted.addons.lmme_dm.graphs.SubsystemGraph;
@@ -98,12 +99,14 @@ public class OverRepresentationAnalysis {
 		}
 		
 		for (Node speciesNode : baseGraph.getOriginalSpeciesNodes()) {
-			if (differentiallyExpressedMetaboliteStrings.contains(AttributeHelper.getLabel(speciesNode, ""))) {
+			if (differentiallyExpressedMetaboliteStrings.contains(
+					AttributeHelper.getAttributeValue(speciesNode, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "", ""))) {
 				differentiallyExpressedMetaboliteNodes.add(speciesNode);
 				referenceMetaboliteNodes.add(speciesNode);
 			}
 			if (referenceMetaboliteStrings.isEmpty()
-					|| referenceMetaboliteStrings.contains(AttributeHelper.getLabel(speciesNode, ""))) {
+					|| referenceMetaboliteStrings.contains(AttributeHelper.getAttributeValue(speciesNode, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH,
+							LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "", ""))) {
 				referenceMetaboliteNodes.add(speciesNode);
 			}
 		}

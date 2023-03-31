@@ -59,6 +59,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
+import org.vanted.addons.lmme_dm.core.LMMEConstants;
 import org.vanted.addons.lmme_dm.core.LMMEController;
 import org.vanted.addons.lmme_dm.core.LMMESession;
 import org.vanted.addons.lmme_dm.decomposition.DiseaseMapPathwayDecomposition;
@@ -277,7 +278,7 @@ public class LMMETab extends InspectorTab {
 		JLabel lbl = new JLabel("<html><p>Insert species to be highlighted.</p>"
 				+ "<p></p>"
 				+ "<p> Use one line per species.</p>"
-				+ "<p> Per line, use the form <b>nodelabel,doublevalue</b>.</p></html>");
+				+ "<p> Per line, use the form <b>crosslinkID,doublevalue</b>.</p></html>");
 		lbl.setBorder(new EmptyBorder(5, 15, 5, 15));
 		frameNodeHighlighting.add(lbl, "0,0");
 		JTextArea textArea = new JTextArea();
@@ -321,13 +322,15 @@ public class LMMETab extends InspectorTab {
 						if (value < minVal) {
 							minVal = value;
 						}
-						String nodeLabel = splitStr[0];
+						String nodeID = splitStr[0];
 						for (int i = 1; i < splitStr.length - 1; i++) {
-							nodeLabel += ",";
-							nodeLabel += splitStr[i];
+							nodeID += ",";
+							nodeID += splitStr[i];
 						}
 						for (Node node : baseGraph.getSpeciesNodes()) {
-							if (AttributeHelper.getLabel(node, "none").equals(nodeLabel)) {
+							if (AttributeHelper
+									.getAttributeValue(node, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "", "")
+									.equals(nodeID)) {
 								nodesHighlightMap.put(node, value);
 							}
 						}
@@ -341,7 +344,10 @@ public class LMMETab extends InspectorTab {
 						for (Node node : og.getGraph().getNodes()) {
 							AttributeHelper.setFillColor(node, Color.WHITE);
 							for (Node node2 : nodesHighlightMap.keySet()) {
-								if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+								if (AttributeHelper
+										.getAttributeValue(node, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "none", "")
+										.equals(AttributeHelper.getAttributeValue(node2, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID,
+												"none2", ""))) {
 									double currentVal = nodesHighlightMap.get(node2).doubleValue();
 									int frac = (int) Math.round((1.0 - (currentVal - minVal) / (maxVal - minVal)) * 200.0);
 									Color c = new Color(frac, frac, 255);
@@ -370,7 +376,9 @@ public class LMMETab extends InspectorTab {
 					Graph csg = LMMEViewManagement.getInstance().getSubsystemFrame().getView().getGraph();
 					for (Node node : csg.getNodes()) {
 						for (Node node2 : nodesHighlightMap.keySet()) {
-							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+							if (AttributeHelper.getAttributeValue(node, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "none", "")
+									.equals(AttributeHelper.getAttributeValue(node2, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID,
+											"none2", ""))) {
 								double currentVal = nodesHighlightMap.get(node2).doubleValue();
 								int frac = (int) Math.round((1.0 - (currentVal - minVal) / (maxVal - minVal)) * 200.0);
 								Color c = new Color(frac, frac, 255);
@@ -390,7 +398,9 @@ public class LMMETab extends InspectorTab {
 							AttributeHelper.setSize(node, og.getInterfaceNodeSize(), og.getInterfaceNodeSize());
 						}
 						for (Node node2 : nodesHighlightMap.keySet()) {
-							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+							if (AttributeHelper.getAttributeValue(node, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "none", "")
+									.equals(AttributeHelper.getAttributeValue(node2, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID,
+											"none2", ""))) {
 								double currentVal = nodesHighlightMap.get(node2).doubleValue();
 								double frac = (currentVal - minVal) / (maxVal - minVal);
 								int size = (int) Math.round(((double) og.getNodeSizeInterface()) * (1.5 * frac + 1.5));
@@ -420,7 +430,9 @@ public class LMMETab extends InspectorTab {
 					for (Node node : csg.getNodes()) {
 						AttributeHelper.setSize(node, nodeSize, nodeSize);
 						for (Node node2 : nodesHighlightMap.keySet()) {
-							if (AttributeHelper.getLabel(node, "none1").equals(AttributeHelper.getLabel(node2, "none2"))) {
+							if (AttributeHelper.getAttributeValue(node, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID, "none", "")
+									.equals(AttributeHelper.getAttributeValue(node2, LMMEConstants.DISEASE_MAP_ATTRIBUTE_PATH, LMMEConstants.DISEASE_MAP_CROSSLINK_ID,
+											"none2", ""))) {
 								double currentVal = nodesHighlightMap.get(node2).doubleValue();
 								double frac = (currentVal - minVal) / (maxVal - minVal);
 								int size = (int) Math.round(((double) nodeSize) * (1.5 * frac + 1.5));
@@ -503,8 +515,8 @@ public class LMMETab extends InspectorTab {
 		JLabel lblORADescription = new JLabel(
 				"<html><p>The Over-Representation Analysis (ORA) compares the amount of differentially expressed metabolites within a subsystem to the expected amount resulting from the amount of differentially expressed metabolites within the reference set of metabolites.</p>"
 						+ "<p></p>"
-						+ "<p><b>Differentially Expressed Metabolites:</b> Please upload a file that contains the node labels of the differentially expressed metabolites</p>"
-						+ "<p><b>Reference Metabolites:</b> Please upload a file that contains the node labels of the total set of metabolites that have been measured (including the differentially expressed ones). If no file is selected, the total set of metabolites of the model is used as default.</p></html>");
+						+ "<p><b>Differentially Expressed Metabolites:</b> Please upload a file that contains the crosslink IDs of the differentially expressed metabolites</p>"
+						+ "<p><b>Reference Metabolites:</b> Please upload a file that contains the crosslink IDs of the total set of metabolites that have been measured (including the differentially expressed ones). If no file is selected, the total set of metabolites of the model is used as default.</p></html>");
 		
 		JPanel panelORADescription = new JPanel();
 		panelORADescription.setLayout(

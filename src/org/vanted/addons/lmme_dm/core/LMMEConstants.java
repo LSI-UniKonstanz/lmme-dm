@@ -39,6 +39,9 @@ public class LMMEConstants {
 	
 	public static final String DISEASE_MAP_PATHWAY_ATTRIBUTE = "dmPathway";
 	
+	public static final String DISEASE_MAP_ATTRIBUTE_PATH = "cd19dm";
+	public static final String DISEASE_MAP_CROSSLINK_ID = "crosslink_id";
+	
 	/**
 	 * These are the global and overview pathway maps from KEGG.
 	 * <p>
